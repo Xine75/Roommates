@@ -52,7 +52,7 @@ namespace Roommates.Repositories
                         //  For our query, "Id" has an ordinal value of 0 and "Name" is 1.
                         int idColumnPosition = reader.GetOrdinal("Id");
 
-                        // We user the reader's GetXXX methods to get the value for a particular ordinal.
+                        // We use the reader's GetXXX methods to get the value for a particular ordinal.
                         int idValue = reader.GetInt32(idColumnPosition);
 
                         int nameColumnPosition = reader.GetOrdinal("Name");
@@ -76,7 +76,7 @@ namespace Roommates.Repositories
                     // We should Close() the reader. Unfortunately, a "using" block won't work here.
                     reader.Close();
 
-                    // Return the list of rooms who whomever called this method.
+                    // Return the list of rooms to whomever called this method.
                     return rooms;
                 }
             }
@@ -87,11 +87,13 @@ namespace Roommates.Repositories
             {
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
-                {
+                {   //the @ sign is required to denote a parameter (see cmd.Parameters)
                     cmd.CommandText = "SELECT Name, MaxOccupancy FROM Room WHERE Id = @id";
                     cmd.Parameters.AddWithValue("@id", id);
+                    //reader is the cart that carries the data back
                     SqlDataReader reader = cmd.ExecuteReader();
 
+                    //establishing the variable room and setting its initial value to null
                     Room room = null;
 
                     // If we only expect a single row back from the database, we don't need a while loop.
@@ -135,6 +137,47 @@ namespace Roommates.Repositories
             }
 
             // when this method is finished we can look in the database and see the new room.
+        }
+
+        /// <summary>
+        ///  Updates the room
+        /// </summary>
+        public void Update(Room room)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"UPDATE Room
+                                    SET Name = @name,
+                                        MaxOccupancy = @maxOccupancy
+                                    WHERE Id = @id";
+                    cmd.Parameters.AddWithValue("@name", room.Name);
+                    cmd.Parameters.AddWithValue("@maxOccupancy", room.MaxOccupancy);
+                    cmd.Parameters.AddWithValue("@id", room.Id);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        /// <summary>
+        ///  Delete the room with the given id
+        /// </summary>
+        public void Delete(int id)
+        {
+            using (SqlConnection conn = Connection)
+            {
+                conn.Open();
+                using (SqlCommand cmd = conn.CreateCommand())
+                {
+                    // What do you think this code will do if there is a roommate in the room we're deleting???
+                    cmd.CommandText = "DELETE FROM Room WHERE Id = @id";
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

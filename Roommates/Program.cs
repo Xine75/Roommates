@@ -2,6 +2,7 @@
 using Roommates.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Roommates
 {
@@ -63,6 +64,48 @@ namespace Roommates
                         Console.ReadKey();
                         break;
 
+                    case ("Update a room"):
+                        List<Room> roomOptions = roomRepo.GetAll();
+                        foreach (Room r in roomOptions)
+                        {
+                            Console.WriteLine($"{r.Id} - {r.Name} Max Occupancy({r.MaxOccupancy})");
+                        }
+
+                        Console.Write("Which room would you like to update? ");
+                        int selectedRoomId = int.Parse(Console.ReadLine());
+                        Room selectedRoom = roomOptions.FirstOrDefault(r => r.Id == selectedRoomId);
+
+                        Console.Write("New Name: ");
+                        selectedRoom.Name = Console.ReadLine();
+
+                        Console.Write("New Max Occupancy: ");
+                        selectedRoom.MaxOccupancy = int.Parse(Console.ReadLine());
+
+                        roomRepo.Update(selectedRoom);
+
+                        Console.WriteLine($"Room has been successfully updated");
+                        Console.Write("Press any key to continue");
+                        Console.ReadKey();
+                        break;
+
+                    case ("Delete a room"):
+                        List<Room> deleteOptions = roomRepo.GetAll();
+                        foreach (Room d in deleteOptions)
+                        {
+                            Console.WriteLine($"{d.Id} - {d.Name} Max Occupancy({d.MaxOccupancy}");
+                        }
+                        Console.WriteLine("Please note you may not delete a room if people are living in it");
+                        Console.Write("Which empty room would you like to delete?");
+                        int deletedRoomId = int.Parse(Console.ReadLine());
+                        Room deletedRoom = deleteOptions.FirstOrDefault(d => d.Id == deletedRoomId);
+
+                        roomRepo.Delete(deletedRoomId);
+
+                        Console.WriteLine($"Room has been successful deleted");
+                        Console.Write("Press any key to continue");
+                        Console.ReadKey();
+                        break;
+
                     case ("Exit"):
                         runProgram = false;
                         break;
@@ -80,6 +123,8 @@ namespace Roommates
             "Show all rooms",
             "Search for room",
             "Add a room",
+            "Update a room",
+            "Delete a room",
             "Exit"
         };
 
